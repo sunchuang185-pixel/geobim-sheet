@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171f1b">
+  <title>GeoBIM Revision Review Agent</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <style>
+    .agent-layout { max-width: 1560px; margin: 0 auto; padding: 24px 32px; display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 22px; align-items: start; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 13px; padding: 18px 20px; }
+    .card + .card { margin-top: 16px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 999px; font: 600 11px/1.2 var(--mono); border: 1px solid #495d4c; background: #263529; color: #cde2bf; }
+    .badge.warn { border-color: #8a6432; background: #382c1d; color: #f6cf92; }
+    .badge.ok { border-color: #4f7752; background: #243827; color: var(--accent); }
+    .badge.err { border-color: #8c4539; background: #3b221e; color: #ffb8a7; }
+    .field-group { display: grid; gap: 6px; margin-top: 12px; }
+    .mode-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .mode-tabs button.active { background: #314436; border-color: var(--accent); color: var(--accent); }
+    .upload-box { display: grid; gap: 10px; margin-top: 12px; padding: 12px; border: 1px dashed #4d5f52; border-radius: 8px; background: var(--surface-deep); }
+    .upload-box label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+    .upload-box input[type="file"] { font-size: 12px; }
+    .trace-list { display: grid; gap: 10px; margin-top: 12px; }
+    .tool-step { border: 1px solid var(--line); border-radius: 9px; background: var(--surface-deep); padding: 11px 13px; }
+    .tool-step-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .tool-name { font: 650 13px var(--mono); color: var(--accent); }
+    .tool-meta { font: 11px var(--mono); color: var(--muted); }
+    .tool-details { margin-top: 8px; }
+    .tool-details summary { cursor: pointer; font-size: 12px; color: #c4d4c6; }
+    .tool-json { margin: 8px 0 0; padding: 10px; border-radius: 6px; background: #121815; border: 1px solid #2c3831; overflow-x: auto; font: 11px/1.45 var(--mono); color: #d3e0d5; max-height: 280px; }
+    .pending-box { border: 1px solid #967038; background: #2d261a; border-radius: 10px; padding: 15px; margin-bottom: 16px; }
+    .pending-box h3 { color: #f6cf92; font-size: 14px; margin-bottom: 6px; }
+    .candidate-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .candidate-btn { border: 1px solid #8a6c3c; background: #3c3120; color: #fce1b0; border-radius: 7px; padding: 8px 12px; font-size: 12px; text-align: left; }
+    .candidate-btn:hover { background: #4d3e27; border-color: #f6cf92; }
+    .reply-row { display: flex; gap: 8px; margin-top: 10px; }
+    .reply-row input { flex: 1; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface-deep); color: var(--text); }
+    .artifact-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .artifact-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 10px 14px; border-radius: 8px; border: 1px solid #59725a; background: #273729; color: var(--accent); font-weight: 620; font-size: 13px; }
+    .artifact-link:hover { background: #324936; }
+    .summary-body { white-space: pre-wrap; line-height: 1.6; color: #dde7de; font-size: 13px; margin-top: 10px; }
+    .missing-banner { border-left: 3px solid #d9822b; background: #2c2419; padding: 10px 12px; border-radius: 6px; margin-top: 12px; font-size: 12px; color: #f7d6a1; }
+    .issues-table-wrap { overflow-x: auto; margin-top: 12px; }
+    table.issues-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.issues-table th, table.issues-table td { border-bottom: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; }
+    table.issues-table th { color: #bcccac; font: 600 11px var(--mono); white-space: nowrap; }
+    .flag-elev { color: #ffb8a7; font-weight: 650; }
+    @media (max-width: 960px) { .agent-layout { grid-template-columns: 1fr; padding: 16px; } }
+  </style>
+  <script type="module" src="/static/agent.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">✦</span>
+      <span>GeoBIM <b>Revision Review Agent</b></span>
+    </div>
+    <div class="top-actions">
+      <span id="llm-badge" class="badge">Loading model config…</span>
+      <a href="/" class="button subdued" style="text-decoration:none;display:inline-flex;align-items:center;">← Drawing Workspace</a>
+    </div>
+  </header>
+
+  <main class="agent-layout">
+    <aside>
+      <section class="card">
+        <span class="eyebrow">INPUT &amp; TASK</span>
+        <h2 style="margin-top:6px;">发起设计换版评审</h2>
+        <p style="color:var(--muted);font-size:12px;margin-top:4px;line-height:1.5;">
+          共用与 MCP 相同的 6 个 Python 空间/出图工具。坐标、距离、PDF 对照图与 CSV 问题清单全部由 Python 工具计算生成。
+        </p>
+
+        <div class="mode-tabs" role="tablist">
+          <button id="tab-demo" type="button" class="button active">合成演示样例</button>
+          <button id="tab-upload" type="button" class="button subdued">上传自有资料</button>
+        </div>
+
+        <form id="agent-form">
+          <div id="demo-picker" class="field-group">
+            <label for="scenario" class="field-label">演示场景</label>
+            <select id="scenario" name="scenario"></select>
+          </div>
+
+          <div id="upload-picker" class="upload-box" hidden>
+            <label>旧版 IFC (Rev A) <input id="file-rev-a" name="rev_a" type="file" accept=".ifc"></label>
+            <label>新版 IFC (Rev B) <input id="file-rev-b" name="rev_b" type="file" accept=".ifc"></label>
+            <label>GIS / CAD 管网图层 (GeoJSON 或 DXF) <input id="file-gis" name="gis" type="file" accept=".geojson,.json,.dxf"></label>
+            <details style="margin-top:4px;font-size:12px;color:var(--muted);">
+              <summary style="cursor:pointer;color:#c9d9cb;">可选：缺 IfcMapConversion 时手动配准（CGCS2000 / UTM）</summary>
+              <div style="display:grid;gap:6px;margin-top:8px;">
+                <label>投影 EPSG <input id="override-crs" type="text" placeholder="例如 EPSG:4547 或 EPSG:32650" style="padding:6px;background:#121815;border:1px solid var(--line);border-radius:5px;color:var(--text);"></label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                  <label>原点 Easting (m) <input id="override-e" type="number" step="any" placeholder="518400" style="padding:6px;background:#121815;border:1px solid var(--line);border-radius:5px;color:var(--text);"></label>
+                  <label>原点 Northing (m) <input id="override-n" type="number" step="any" placeholder="3426800" style="padding:6px;background:#121815;border:1px solid var(--line);border-radius:5px;color:var(--text);"></label>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <div class="field-group">
+            <label for="instruction" class="field-label">评审指令</label>
+            <textarea id="instruction" rows="4" required></textarea>
+          </div>
+
+          <div class="field-group">
+            <button id="start-btn" type="submit" class="button accent run">运行评审 Agent <span aria-hidden="true">↗</span></button>
+          </div>
+          <p id="form-error" class="dialog-error" style="margin-top:8px;font-size:12px;" hidden></p>
+        </form>
+      </section>
+
+      <section class="card">
+        <span class="eyebrow">RECENT TASKS</span>
+        <h3 style="margin-top:6px;">最近评审任务</h3>
+        <div id="recent-tasks" style="display:grid;gap:6px;margin-top:10px;font-size:12px;color:var(--muted);">暂无任务记录</div>
+      </section>
+    </aside>
+
+    <section>
+      <div id="pending-panel" class="pending-box" hidden>
+        <h3>需要你的确认（任务已暂停并保存状态）</h3>
+        <p id="pending-question" style="font-size:13px;line-height:1.5;color:#f7e2be;"></p>
+        <div id="candidate-list" class="candidate-list"></div>
+        <form id="reply-form" class="reply-row">
+          <input id="reply-input" type="text" placeholder="或直接输入设备位号 / 确认说明（例如：选择 P-101）">
+          <button id="reply-btn" type="submit" class="button accent">确认并继续</button>
+        </form>
+      </div>
+
+      <section class="card">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;">
+          <div>
+            <span class="eyebrow">AGENT RESULT</span>
+            <h2 id="task-heading" style="margin-top:4px;">等待启动评审任务</h2>
+          </div>
+          <span id="task-status" class="badge">IDLE</span>
+        </div>
+        <div id="missing-banner" class="missing-banner" hidden></div>
+        <div id="summary-body" class="summary-body">选择左侧演示场景（正常换版 / ID 变化 / 同名泵房 / 坐标缺失）或上传两版 IFC 与 GIS 管线图层后点击运行。</div>
+      </section>
+
+      <section id="artifacts-card" class="card" hidden>
+        <span class="eyebrow">VERIFIED DELIVERABLES</span>
+        <h3 style="margin-top:6px;">评审成果下载（已核验文件落盘）</h3>
+        <div id="artifact-grid" class="artifact-grid"></div>
+        <div id="issues-wrap" class="issues-table-wrap" hidden>
+          <table class="issues-table">
+            <thead>
+              <tr>
+                <th>编号</th>
+                <th>类别</th>
+                <th>设备位号</th>
+                <th>管线</th>
+                <th>距离 (A→B)</th>
+                <th>高程/埋深</th>
+                <th>说明</th>
+              </tr>
+            </thead>
+            <tbody id="issues-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <span class="eyebrow">TOOL EXECUTION TRACE</span>
+        <h3 style="margin-top:6px;">实际执行的工具与结构化返回</h3>
+        <div id="trace-list" class="trace-list">
+          <p style="color:var(--muted);font-size:12px;">任务执行后将在此展示每一步真实工具调用（open_project → list_layers → compare_revisions → find_assets → check_utility_proximity → export_review_package）。</p>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

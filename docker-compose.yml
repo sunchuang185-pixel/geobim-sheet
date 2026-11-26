@@ -1,0 +1,36 @@
+services:
+  geobim-sheet:
+    build: .
+    container_name: geobim-sheet
+    ports:
+      - "${PORT:-8765}:8765"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8765"
+      GEOBIM_DATA_DIR: "/data"
+      GEOBIM_ALLOW_UPLOAD: "${GEOBIM_ALLOW_UPLOAD:-true}"
+      LLM_PROVIDER: "${LLM_PROVIDER:-demo}"
+      LLM_BASE_URL: "${LLM_BASE_URL:-}"
+      LLM_MODEL: "${LLM_MODEL:-}"
+      LLM_API_KEY: "${LLM_API_KEY:-}"
+    volumes:
+      - geobim_data:/data
+    restart: unless-stopped
+
+  # Optional local Ollama service: start with `docker compose --profile ollama up -d`
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    container_name: geobim-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  geobim_data:
+  ollama_models:

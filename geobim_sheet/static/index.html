@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171f1b">
+  <title>GeoBIM Sheet</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script type="module" src="/static/workspace.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-icon" aria-hidden="true">◇</span><span>GeoBIM <b>Sheet</b></span></div>
+    <div class="top-actions">
+      <a href="/agent" class="button subdued" style="text-decoration:none;display:inline-flex;align-items:center;">✦ Review Agent</a>
+      <button id="show-import" class="button subdued" type="button">Import files</button>
+      <button id="download-dxf" class="button" type="button" disabled>↓ DXF</button>
+      <button id="download-pdf" class="button accent" type="button" disabled>↓ A3 PDF</button>
+    </div>
+  </header>
+  <main class="workspace">
+    <section class="drawing" aria-labelledby="sheet-title">
+      <div class="drawing-header">
+        <div>
+          <span id="project-label" class="eyebrow">DRAWING WORKSPACE</span>
+          <h1 id="sheet-title">Site plan</h1>
+        </div>
+        <span id="sheet-radius" class="radius-tag" hidden></span>
+      </div>
+      <div class="map-frame">
+        <svg id="map" role="img" aria-label="Plan view showing the selected IFC asset and GIS layers" viewBox="-130 -105 260 210"></svg>
+        <div class="map-empty" id="map-empty">Loading example drawing…</div>
+        <div class="map-label legend-selected" id="map-label" hidden><span></span> Selected asset</div>
+        <div class="north" aria-label="Grid north"><span>N</span><span aria-hidden="true">▲</span></div>
+        <div class="map-controls" aria-label="Map zoom">
+          <button id="zoom-in" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+          <button id="zoom-out" type="button" aria-label="Zoom out" title="Zoom out">−</button>
+          <button id="zoom-reset" type="button" aria-label="Fit drawing" title="Fit drawing">⌖</button>
+        </div>
+        <div class="scale" id="scale" hidden><span id="scale-text"></span><span id="scale-bar"></span></div>
+      </div>
+      <div class="drawing-meta">
+        <span id="model-file">IFC model</span><span id="gis-file">GIS layers</span><span id="project-crs">CRS</span>
+      </div>
+    </section>
+
+    <aside class="sidebar" aria-labelledby="assistant-title">
+      <div class="side-title">
+        <span class="assistant-icon" aria-hidden="true">✦</span>
+        <div><h2 id="assistant-title">Drawing assistant</h2><p>Work from an IFC asset tag.</p></div>
+      </div>
+      <form id="assistant-form" class="assistant-form">
+        <label for="command" class="field-label">Drawing instruction</label>
+        <textarea id="command" rows="3" maxlength="600" placeholder="P-101, 100 m radius, show roads and water" aria-describedby="assistant-message"></textarea>
+        <button id="run" class="button accent run" type="submit" disabled>Update drawing <span aria-hidden="true">↗</span></button>
+      </form>
+      <div class="quick-actions" aria-label="Example instructions">
+        <button type="button" data-command="Set radius to 60 m">60 m radius</button>
+        <button type="button" data-command="Only roads and water supply" data-requires="roads,water">Roads + water</button>
+      </div>
+      <p id="assistant-message" class="assistant-message" role="status" aria-live="polite">Loading the example project.</p>
+
+      <section class="panel" aria-labelledby="asset-heading">
+        <h3 id="asset-heading">Asset</h3>
+        <label for="asset-select" class="sr-only">Select an IFC asset</label>
+        <select id="asset-select" disabled></select>
+      </section>
+      <section class="panel layers-panel" aria-labelledby="layers-heading">
+        <h3 id="layers-heading">Layers</h3>
+        <div id="layers" class="layers"></div>
+      </section>
+      <button id="load-demo" class="button example-button subdued" type="button">Load example project</button>
+    </aside>
+  </main>
+
+  <dialog id="import-dialog" aria-labelledby="import-title">
+    <form id="import-form">
+      <div class="dialog-header"><h2 id="import-title">Import project files</h2><button id="close-import" type="button" class="button subdued" aria-label="Close import">×</button></div>
+      <p>Load an IFC4 model with an embedded projected CRS in metres and a WGS 84 GeoJSON site layer file.</p>
+      <label>IFC model <input name="ifc" accept=".ifc" type="file" required></label>
+      <label>Site layers <input name="gis" accept=".geojson,.json" type="file" required></label>
+      <p id="import-error" class="dialog-error" role="alert" hidden></p>
+      <button id="import-submit" type="submit" class="button accent">Open project</button>
+    </form>
+  </dialog>
+</body>
+</html>

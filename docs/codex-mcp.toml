@@ -1,0 +1,10 @@
+# Codex MCP configuration (~/.codex/config.toml)
+# Replace the Python path and cwd with your local GeoBIM Sheet checkout.
+
+[mcp_servers.geobim-sheet]
+command = "python"
+args = ["-m", "geobim_sheet.mcp_server"]
+cwd = "D:/items/geobim-sheet"
+
+[mcp_servers.geobim-sheet.env]
+GEOBIM_DATA_DIR = "D:/items/geobim-sheet/data/geobim_review"
