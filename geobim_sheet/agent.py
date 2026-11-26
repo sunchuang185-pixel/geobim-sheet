@@ -219,9 +219,12 @@ class ReviewAgent:
         if result.get("project_id") and not task.get("project_id"):
             task["project_id"] = result["project_id"]
         if result.get("missing_info"):
-            existing = {json.dumps(x, sort_keys=True, ensure_ascii=False) for x in task["missing_info"]}
+            existing = {
+                (x.get("field"), x.get("utility_id") or x.get("source"), x.get("flag") or "")
+                for x in task["missing_info"]
+            }
             for item in result["missing_info"]:
-                sig = json.dumps(item, sort_keys=True, ensure_ascii=False)
+                sig = (item.get("field"), item.get("utility_id") or item.get("source"), item.get("flag") or "")
                 if sig not in existing:
                     existing.add(sig)
                     task["missing_info"].append(item)
@@ -665,13 +668,22 @@ class ReviewAgent:
             f"- {f['label']}：`{f['filename']}`（{f['size_bytes']} bytes，已核验落盘）"
             for f in task.get("artifacts", [])
         ]
+        layer_titles = {
+            "all": "全部管线与边坡",
+            "water": "给水管线",
+            "slurry": "矿浆/尾矿管线",
+            "power": "电力电缆沟",
+            "drainage": "排水/截洪沟",
+            "slope": "台阶边坡线",
+        }
+        layer_title = layer_titles.get(utility_layer, utility_layer)
         trace = export_res.get("traceability", {})
         summary = (
             f"### 设计换版评审已完成（项目 `{project_id}` / `{trace.get('crs', '')}`）\n\n"
             f"**输入溯源**：Rev A `{trace.get('rev_a_file', '')}` · Rev B `{trace.get('rev_b_file', '')}` · GIS `{trace.get('gis_file', '')}`\n\n"
             f"**1. 位置变动设备（{cmp_res.get('moved_count', 0)} 项）**\n"
             + ("\n".join(moved_lines) if moved_lines else "- 未检测到超过阈值的平面位移。")
-            + f"\n\n**2. {target_asset.get('tag', focus_tag or '目标设备')} 周边 {buffer_m:g} m 需复核给水管线（{prox_res.get('review_count', 0)} 条，缺埋深 {prox_res.get('missing_elevation_count', 0)} 条）**\n"
+            + f"\n\n**2. {target_asset.get('tag', focus_tag or '目标设备')} 周边 {buffer_m:g} m 需复核{layer_title}（{prox_res.get('review_count', 0)} 项，缺埋深 {prox_res.get('missing_elevation_count', 0)} 项）**\n"
             + ("\n".join(prox_lines) if prox_lines else "- 复核范围内未发现管线。")
             + "\n\n**3. 已生成评审交付件**\n"
             + ("\n".join(file_lines) if file_lines else "- 未生成文件。")

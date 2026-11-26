@@ -87,11 +87,11 @@ function renderTask(task) {
     pendingPanel.hidden = true;
   }
 
-  // Summary
+  // Summary (safely rendered Markdown -> HTML)
   if (task.error) {
     $('summary-body').textContent = task.error;
   } else if (task.final_summary) {
-    $('summary-body').textContent = task.final_summary;
+    $('summary-body').innerHTML = renderMarkdown(task.final_summary);
   } else if (task.status === 'waiting_for_user' && pending) {
     $('summary-body').textContent = `等待用户确认：${pending.question}`;
   } else {
@@ -174,6 +174,37 @@ function renderTask(task) {
 
 function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderInlineMarkdown(line) {
+  return escapeHtml(line)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
+function renderMarkdown(text) {
+  const lines = String(text || '').split(/\r?\n/);
+  const html = [];
+  let inList = false;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) {
+      if (inList) { html.push('</ul>'); inList = false; }
+      continue;
+    }
+    if (line.startsWith('### ')) {
+      if (inList) { html.push('</ul>'); inList = false; }
+      html.push(`<h3>${renderInlineMarkdown(line.slice(4))}</h3>`);
+    } else if (line.startsWith('- ')) {
+      if (!inList) { html.push('<ul>'); inList = true; }
+      html.push(`<li>${renderInlineMarkdown(line.slice(2))}</li>`);
+    } else {
+      if (inList) { html.push('</ul>'); inList = false; }
+      html.push(`<p>${renderInlineMarkdown(line)}</p>`);
+    }
+  }
+  if (inList) html.push('</ul>');
+  return html.join('');
 }
 
 function renderRecent(tasks) {
