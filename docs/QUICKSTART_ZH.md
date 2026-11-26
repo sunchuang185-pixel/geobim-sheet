@@ -8,7 +8,8 @@
 
 ```powershell
 # Windows PowerShell
-cd D:\items\geobim-sheet
+git clone https://github.com/sunchuang185-pixel/geobim-sheet.git
+cd geobim-sheet
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e .
 .\.venv\Scripts\python.exe -m geobim_sheet
@@ -62,10 +63,10 @@ LLM_API_KEY=你的服务端Key
 [mcp_servers.geobim-sheet]
 command = "python"
 args = ["-m", "geobim_sheet.mcp_server"]
-cwd = "D:/items/geobim-sheet"
+cwd = "/path/to/geobim-sheet"
 
 [mcp_servers.geobim-sheet.env]
-GEOBIM_DATA_DIR = "D:/items/geobim-sheet/data/geobim_review"
+GEOBIM_DATA_DIR = "/path/to/geobim-sheet/data/geobim_review"
 ```
 
 ### 可直接复制的演示指令
