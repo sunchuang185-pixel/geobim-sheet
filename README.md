@@ -1,10 +1,25 @@
 # GeoBIM Sheet & Revision Review Agent
 
-GeoBIM Sheet is an open-source, self-hostable **GIS/BIM drawing workspace and design revision review agent**. Compare two IFC4/IFC4.3 design revisions against GIS site utility layers, verify coordinate reference systems, detect moved assets (including GlobalId changes on re-export), calculate planar clearances to water/drainage pipelines (flagging missing bury depth as `待核实高程`), and export traceable **A3 comparison PDFs**, **UTF-8 CSV issue registers**, and **editable 2D DXF drawings**.
+[![CI](https://github.com/sunchuang185-pixel/geobim-sheet/actions/workflows/ci.yml/badge.svg)](https://github.com/sunchuang185-pixel/geobim-sheet/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python 3.11–3.13](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
+
+GeoBIM Sheet is an open-source, self-hostable **GIS/BIM drawing workspace and design revision review agent** for mining and industrial sites. Compare two IFC4/IFC4.3 design revisions against GIS GeoJSON or CAD DXF utility layers, verify coordinate reference systems (including CGCS2000 `EPSG:4547` & UTM, plus two-step explicit georeferencing), detect moved assets (including GlobalId changes on re-export), evaluate planar clearances against utility/slope rules (flagging missing bury depth as `待核实高程`), and export traceable **A3 comparison PDFs**, **UTF-8 CSV issue registers**, and **editable 2D DXF drawings**.
 
 All geometric calculations, CRS checks, distance queries, and drawing exports are executed deterministically by shared Python tools—exposed through both an **official Python MCP stdio server** and a **Flask Web Agent UI** with real tool-calling LLM support (local **Ollama** or any **OpenAI-compatible** API).
 
+### Revision Review Agent & Generated Mining Comparison Sheet
+
+![GeoBIM Revision Review Agent UI running the Mineworks CGCS2000 concentrator scenario](docs/agent-review.png)
+
+![Generated A3 Before/After Comparison PDF for Slurry Pump House SP-101 in EPSG:4547](docs/mineworks-comparison.png)
+
+<details>
+<summary>Classic Drawing Workspace (/)</summary>
+
 ![GeoBIM Sheet workspace showing a pump station and site layers](docs/workspace.png)
+
+</details>
 
 > 中文快速上手请查看：[docs/QUICKSTART_ZH.md](docs/QUICKSTART_ZH.md) · 测试说明：[docs/TESTING.md](docs/TESTING.md)
 
