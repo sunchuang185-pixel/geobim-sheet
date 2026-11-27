@@ -3,6 +3,9 @@
 [![CI](https://github.com/sunchuang185-pixel/geobim-sheet/actions/workflows/ci.yml/badge.svg)](https://github.com/sunchuang185-pixel/geobim-sheet/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.11–3.13](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Try%20Review%20Agent-brightgreen.svg)](http://1.92.125.135/agent)
+
+> **Live Public Demo**: [Revision Review Agent (`/agent`)](http://1.92.125.135/agent) · [Drawing Workspace (`/`)](http://1.92.125.135/) *(synthetic demo scenarios only; uploads disabled on public instance)*
 
 GeoBIM Sheet is an open-source, self-hostable **GIS/BIM drawing workspace and design revision review agent** for mining and industrial sites. Compare two IFC4/IFC4.3 design revisions against GIS GeoJSON or CAD DXF utility layers, verify coordinate reference systems (including CGCS2000 `EPSG:4547` & UTM, plus two-step explicit georeferencing), detect moved assets (including GlobalId changes on re-export), evaluate planar clearances against utility/slope rules (flagging missing bury depth as `待核实高程`), and export traceable **A3 comparison PDFs**, **UTF-8 CSV issue registers**, and **editable 2D DXF drawings**.
 

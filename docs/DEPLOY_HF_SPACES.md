@@ -1,6 +1,6 @@
-# Deploy Live Public Demo on Hugging Face Spaces (Free Docker Space)
+# Deploy Public Demo (Hugging Face Spaces / Cloud Run / Linux Server)
 
-Hugging Face Spaces provides a free **2 vCPU / 16 GB RAM** Docker runtime (no credit card required), which is ideal for hosting the GeoBIM Sheet & Mining Revision Review Agent public demo.
+> **Note**: Hugging Face Spaces now requires a **PRO** subscription for Docker/Gradio compute Spaces (Static Spaces remain free). For zero-cost or self-hosted deployments, you can use **Google Cloud Run** (Always Free tier) or any **Ubuntu VPS** with `gunicorn` + `nginx` (or `docker compose up -d`).
 
 ## Option 1: Create a Docker Space & Push via Git (2 minutes)
 

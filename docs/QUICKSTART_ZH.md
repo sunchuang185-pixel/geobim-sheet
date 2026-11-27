@@ -1,5 +1,7 @@
 # GeoBIM Sheet 设计换版评审 Agent 快速上手（中文）
 
+> **在线公开试玩**：[矿山/工业设计换版评审 Agent (`/agent`)](http://1.92.125.135/agent) · [经典制图工作台 (`/`)](http://1.92.125.135/)（公开演示实例关闭上传，仅运行内置 7 组合成场景）
+
 本项目在原有 GeoBIM Sheet（IFC + GIS 局部出图工作台）基础上，新增了面向**矿山与工业场地**的 **GIS/BIM 设计换版评审 Agent**，提供 **MCP（本地 stdio）** 和 **Flask 网页（`/agent`）** 双入口，共用同一套可独立测试的确定性 Python 空间与出图工具。
 
 ![矿山换版评审 Agent 界面](agent-review.png)
