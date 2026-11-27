@@ -121,6 +121,10 @@ docker compose up --build -d
 - **Self-hosted mode**: keep `GEOBIM_ALLOW_UPLOAD=true` to upload your own Rev A `.ifc`, Rev B `.ifc`, and WGS 84 `.geojson` files.
 - **With local Ollama container**: `docker compose --profile ollama up -d`, pull a tool-calling model (`docker exec -it geobim-ollama ollama pull qwen2.5:7b`), and set `LLM_PROVIDER=ollama` + `LLM_BASE_URL=http://ollama:11434`.
 
+### Deploy Free Public Demo on Hugging Face Spaces
+
+The `Dockerfile` runs as UID `1000` on port `7860` with `gunicorn` and defaults to safe public demo mode (`GEOBIM_ALLOW_UPLOAD=false`). See [docs/DEPLOY_HF_SPACES.md](docs/DEPLOY_HF_SPACES.md) for the 2-minute Hugging Face Spaces deployment steps.
+
 ### Deploy to Google Cloud Run (Optional)
 
 The `Dockerfile` binds `0.0.0.0:$PORT` out of the box:
